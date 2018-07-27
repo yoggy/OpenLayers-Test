@@ -3,6 +3,11 @@
 var initial_center = ol.proj.transform([139.76681118894027, 35.681279893274294], "EPSG:4326", "EPSG:3857");
 var initial_zoom = 18;
 
+proj4.defs([
+  ['WGS84','+title=WGS84 +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
+  ['UTM54N','+title=UTM zone 54N +proj=utm +zone=54 +ellps=WGS84 +datum=WGS84 +units=m']
+]);
+
 var map = new ol.Map({
     target: "openlayers-container",
     renderer: ['canvas', 'dom'],
@@ -36,7 +41,17 @@ var map = new ol.Map({
 function displayMessage() {
     var p = ol.proj.transform(map.getView().getCenter(), "EPSG:3857", "EPSG:4326");
     var zoom = map.getView().getZoom();
-    updateMessage("lat=" + p[1] + ", long=" + p[0] + ", zoom=" + zoom);
+
+    var lng = p[0]
+    var lat = p[1]
+
+    var x, y;
+    [x, y] = proj4('WGS84','UTM54N', [lng,lat]);
+
+    var dx = x - 381541
+    var dy = y - 3950187
+
+    updateMessage("lat=" + lat + ", lng=" + lng + ", zoom=" + zoom + ", (x,y)=" + x + "," + y + ", (dx,dy)=" + dx + ", " + dy);
 }
 
 function updateMessage(str) {
@@ -80,7 +95,7 @@ function drawCursor() {
 
 window.addEventListener('load', function() {
     drawCursor();
-    setInterval(displayMessage, 100);
+    setInterval(displayMessage, 500);
     document.getElementById("reset-button").addEventListener("click", onResetButton);
 })
 
