@@ -3,6 +3,17 @@
 var initial_center = ol.proj.transform([139.76681118894027, 35.681279893274294], "EPSG:4326", "EPSG:3857");
 var initial_zoom = 18;
 
+var offset_center_x = 381541
+var offset_center_y = 3950187
+
+var input_lat = document.getElementById("input_lat")
+var input_lng = document.getElementById("input_lng")
+var input_x = document.getElementById("input_x")
+var input_y = document.getElementById("input_y")
+var input_dx = document.getElementById("input_dx")
+var input_dy = document.getElementById("input_dy")
+var div_zoom = document.getElementById("div_zoom");
+
 proj4.defs([
   ['WGS84','+title=WGS84 +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
   ['UTM54N','+title=UTM zone 54N +proj=utm +zone=54 +ellps=WGS84 +datum=WGS84 +units=m']
@@ -38,7 +49,10 @@ var map = new ol.Map({
       })
   });
 
-function displayMessage() {
+map.on('click', function(evt){console.log("click")})
+map.on('moveend', function(evt){updateStatus()})
+
+function updateStatus() {
     var p = ol.proj.transform(map.getView().getCenter(), "EPSG:3857", "EPSG:4326");
     var zoom = map.getView().getZoom();
 
@@ -48,24 +62,82 @@ function displayMessage() {
     var x, y;
     [x, y] = proj4('WGS84','UTM54N', [lng,lat]);
 
-    var dx = x - 381541
-    var dy = y - 3950187
+    var dx = x - offset_center_x
+    var dy = y - offset_center_y
 
-    updateMessage("lat=" + lat + ", lng=" + lng + ", zoom=" + zoom + ", (x,y)=" + x + "," + y + ", (dx,dy)=" + dx + ", " + dy);
+    updateInput(lat, lng, zoom, x, y, dx, dy);
 }
 
-function updateMessage(str) {
-    var dom_msg = document.getElementById("message");
-    dom_msg.innerHTML = escapeHTML(str);
+function updateInput(lat, lng, zoom, x, y, dx, dy) {
+  input_lat.value = lat;
+  input_lng.value = lng;
+  input_x.value = x;
+  input_y.value = y;
+  input_dx.value = dx;
+  input_dy.value = dy;
+  div_zoom.innerHTML = escapeHTML("zoom="+zoom);
 }
 
 function escapeHTML(str) {
     return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function onResetButton() {
-    map.getView().setCenter(initial_center);
-    map.getView().setZoom(initial_zoom);
+function setCenterLatLng(lat, lng) {
+  var p = ol.proj.transform([lng, lat], "EPSG:4326", "EPSG:3857");
+  map.getView().setCenter(p);
+}
+
+function setCenterXY(x, y) {
+  [lng,lat] = proj4('UTM54N','WGS84', [x,y]);
+  setCenterLatLng(lat, lng)
+}
+
+function setCenterDxDy(dx, dy) {
+  x = dx + offset_center_x;
+  y = dy + offset_center_y;
+  setCenterXY(x, y)
+}
+
+function onButtonReset() {
+  console.log('onButtonReset()');
+  map.getView().setCenter(initial_center);
+  map.getView().setZoom(initial_zoom);
+}
+
+function getLatLngFromInput() {
+  var lat = parseFloat(input_lat.value)
+  var lng = parseFloat(input_lng.value)
+  return [lat, lng]
+}
+
+function getXYFromInput() {
+  var x = parseFloat(input_x.value)
+  var y = parseFloat(input_y.value)
+  return [x, y]
+}
+
+function getDxDyFromInput() {
+  var dx = parseFloat(input_dx.value)
+  var dy = parseFloat(input_dy.value)
+  return [dx, dy]
+}
+
+function onButtonLatLng() {
+  console.log('onButtonLatLng()');
+  [lat, lng] = getLatLngFromInput();  
+  setCenterLatLng(lat, lng)
+}
+
+function onButtonXY() {
+  console.log('onButtonXY()');
+  [x, y] = getXYFromInput();
+  setCenterXY(x, y)
+}
+
+function onButtonDxDy() {
+  console.log('onButtonDxDy');
+  [dx, dy] = getDxDyFromInput();
+  setCenterDxDy(dx, dy);
 }
 
 function drawCursor() {
@@ -95,8 +167,8 @@ function drawCursor() {
 
 window.addEventListener('load', function() {
     drawCursor();
-    setInterval(displayMessage, 500);
-    document.getElementById("reset-button").addEventListener("click", onResetButton);
+    document.getElementById("button_latlng").addEventListener("click", onButtonLatLng);
+    document.getElementById("button_xy").addEventListener("click", onButtonXY);
+    document.getElementById("button_dxdy").addEventListener("click", onButtonDxDy);
+    document.getElementById("button_reset").addEventListener("click", onButtonReset);
 })
-
-

@@ -7,6 +7,11 @@ body {
     position: relative;
 }
 
+#status-container {
+    position: relative;
+    left:600px;
+}
+
 #openlayers-container {
     position: absolute;
     top: 0px;

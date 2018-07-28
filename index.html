@@ -9,11 +9,38 @@
     <link rel="stylesheet" href="css/style.css" type="text/css">
 </head>
 <body>
-    <div id="message">lat=, lon=</div>
-    <input id="reset-button" type="button" value="reset">
     <div id="map-container">
         <div id="openlayers-container"></div> 
         <canvas id="map-overlay">
+    </div>
+    <div id="status-container">
+        <table>
+            <tr>
+                <td>lat</td>
+                <td><input id="input_lat" value=""></td>
+                <td>lng</td>
+                <td><input id="input_lng" value=""></td>
+                <td><div id="div_zoom">zoom=</div></td>
+                <td><input id="button_latlng" type="button" value="set"></td>
+            </tr>                
+            <tr>
+                <td>x</td>
+                <td><input id="input_x" value=""></td>
+                <td>y</td>
+                <td><input id="input_y" value=""></td>
+                <td><input id="button_xy" type="button" value="set"></td>
+            </tr>                
+            <tr>
+                <td>dx</td>
+                <td><input id="input_dx" value=""></td>
+                <td>dy</td>
+                <td><input id="input_dy" value=""></td>
+                <td><input id="button_dxdy" type="button" value="set"></td>
+            </tr>                
+            <tr>
+                <td><input id="button_reset" type="button" value="reset"></td>
+            </tr>
+            </table>
     </div>
     <script type="text/javascript" src="js/test.js"></script>
 </body>
